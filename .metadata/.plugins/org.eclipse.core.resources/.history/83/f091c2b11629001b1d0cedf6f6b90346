@@ -1,0 +1,5 @@
+package br.com.victorcaselli.dscatolog.repositories;
+
+public class CategoryRepository {
+
+}
