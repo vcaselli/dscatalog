@@ -1,0 +1,80 @@
+package br.com.victorcaselli.dscatolog.services;
+
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.persistence.EntityNotFoundException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import br.com.victorcaselli.dscatolog.dto.ProductDTO;
+import br.com.victorcaselli.dscatolog.entities.Product;
+import br.com.victorcaselli.dscatolog.repositories.ProductRepository;
+import br.com.victorcaselli.dscatolog.services.exceptions.DataBaseException;
+import br.com.victorcaselli.dscatolog.services.exceptions.ResourceNotFoundException;
+
+@Service
+public class ProductService {
+	
+	@Autowired
+	ProductRepository repository;
+	
+	@Transactional(readOnly = true)
+	public Page<ProductDTO> findAllPaged(PageRequest pageRequest){ 
+		return repository.findAll(pageRequest)
+				.map(x -> new ProductDTO(x));
+	}
+	
+	@Transactional(readOnly = true)
+	public ProductDTO findById(Long id) { 
+		Optional<Product> entity = repository.findById(id);
+		Product obj = entity
+				.orElseThrow(() -> new ResourceNotFoundException("Entity not found"));
+		return new ProductDTO(obj, obj.getCategories());
+	}
+	
+	@Transactional
+	public ProductDTO insert(ProductDTO dto) { 
+		Product obj = new Product();
+		//obj.setName(dto.getName());
+		obj = repository.save(obj);
+		return new ProductDTO(obj);
+		
+	}
+	
+	
+	public void updateData(Product obj, ProductDTO dto) { 
+		obj.setName(dto.getName());
+	}
+	
+	
+	@Transactional
+	public ProductDTO update(Long id, ProductDTO dto) { 
+		try {
+		Product obj = repository.getOne(id);
+		updateData(obj, dto);
+		repository.save(obj);
+		return new ProductDTO(obj);
+		}catch(EntityNotFoundException enfe) { 
+			throw new ResourceNotFoundException("Id not found! ID: "+id);
+		}
+	}
+	
+	@Transactional
+	public void delete(Long id) { 
+		try {
+		repository.deleteById(id);
+		}catch(EmptyResultDataAccessException e) { 
+			throw new ResourceNotFoundException("Id not found! ID:"+id);
+		}catch(DataIntegrityViolationException d) {
+			throw new DataBaseException("Integrity violation");
+		}
+	}
+
+}
