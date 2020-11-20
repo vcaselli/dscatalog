@@ -1,0 +1,27 @@
+package br.com.victorcaselli.dscatolog.resources.exceptions;
+
+import java.time.Instant;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import br.com.victorcaselli.dscatolog.services.exceptions.EntityNotFoundException;
+
+@ControllerAdvice
+public class ResourceExceptionHandler {
+	
+	@ExceptionHandler(EntityNotFoundException.class)
+	public ResponseEntity<StandardError> entityNotFound(EntityNotFoundException enfe, HttpServletRequest request ){ 
+		StandardError se = new StandardError();
+		se.setTimestamp(Instant.now());
+		se.setStatus(HttpStatus.NOT_FOUND.value());
+		se.setError("Resource not found");
+		se.setMessage(enfe.getMessage());
+		se.setPath(request.getRequestURI());
+	}
+
+}
