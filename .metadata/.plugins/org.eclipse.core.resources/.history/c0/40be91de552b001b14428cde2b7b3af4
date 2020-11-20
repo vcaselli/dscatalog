@@ -27,8 +27,9 @@ public class CategoryService {
 	
 	@Transactional(readOnly = true)
 	public Page<CategoryDTO> findAllPaged(PageRequest pageRequest){ 
-		return repository.findAll(pageRequest)
-				.map(x -> new CategoryDTO(x));
+		return repository.findAll().stream()
+				.map(x -> new CategoryDTO(x))
+				.collect(Collectors.toList());
 	}
 	
 	@Transactional(readOnly = true)

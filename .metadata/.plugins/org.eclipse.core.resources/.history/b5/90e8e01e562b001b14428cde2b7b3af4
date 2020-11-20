@@ -1,6 +1,7 @@
 package br.com.victorcaselli.dscatolog.resources;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -37,7 +38,7 @@ public class CategoryResource {
 			{
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
 		
-		Page<CategoryDTO> categories = service.findAllPaged(pageRequest); 
+		Page<CategoryDTO> categories = service.findAll(); 
 		
 		return ResponseEntity.ok().body(categories);
 	}
